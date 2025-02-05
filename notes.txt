@@ -1,3 +1,4 @@
 we plotted temperature and cell abundance. 
 	- each dot represents a sample.
 	- environmental groups are shown by color.
+	- changes for practice 
