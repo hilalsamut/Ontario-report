@@ -147,18 +147,30 @@ sample_taxon_long <-
   taxon_clean_goodSept %>%
   inner_join(., taxon_clean_goodSept_long, by = "sample_id")
 
-
+# Join sample_data and sample_taxon_long
 sample_taxon <-
   sample_data %>% 
   inner_join(., taxon_clean_goodSept_long, by = "sample_id")
 
 
 # Plotting
-sample_taxon %>%
+p <- 
+  sample_taxon %>%
   filter(Phylum == "Chloroflexi" | Phylum == "Cyanobacteria" | Phylum == "Bacteroidota") %>%
   ggplot(aes(x = env_group, y = Abundance, color = env_group, fill = env_group)) +
-  geom_boxplot() +
+  geom_boxplot(alpha = 0.3, outlier.shape = NA) +
+  geom_jitter() +
   facet_grid(cols = vars(Phylum)) +
   theme(axis.text.x = element_text(angle = 90)) +
   labs(title = "Phylum abundance changes by depth and season") +
-  xlab("Depth and Season") + ylab("Phylum Abundance")
+  xlab("Depth and Season") + ylab("Phylum Abundance") + 
+  theme(legend.position="none") 
+
+my_comparisons <- list( c("Deep", "Shallow_May"), c("Shallow_May", "Shallow_September"), 
+                        c("Deep", "Shallow_September"))
+
+library("ggpubr")
+p + stat_compare_means(comparisons = my_comparisons, label = "p.signif") +
+  stat_compare_means(label.y = 0.6)   
+
+ggsave("phylum_abundance_by_depth_and_season.png", width = 6, height = 4)
