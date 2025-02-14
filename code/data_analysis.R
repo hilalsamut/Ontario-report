@@ -132,7 +132,33 @@ sample_and_taxon %>%
   geom_smooth()
 
 
+# Lab briefwork
+
+# Pivot_longer
+taxon_clean_goodSept_long <- 
+  taxon_clean_goodSept %>%
+  # shape into long-formatted data frame
+  pivot_longer(cols = Proteobacteria:Cyanobacteria,
+               names_to = "Phylum",
+               values_to = "Abundance")
+
+# Join
+sample_taxon_long <-
+  taxon_clean_goodSept %>%
+  inner_join(., taxon_clean_goodSept_long, by = "sample_id")
 
 
+sample_taxon <-
+  sample_data %>% 
+  inner_join(., taxon_clean_goodSept_long, by = "sample_id")
 
 
+# Plotting
+sample_taxon %>%
+  filter(Phylum == "Chloroflexi" | Phylum == "Cyanobacteria" | Phylum == "Bacteroidota") %>%
+  ggplot(aes(x = env_group, y = Abundance, color = env_group, fill = env_group)) +
+  geom_boxplot() +
+  facet_grid(cols = vars(Phylum)) +
+  theme(axis.text.x = element_text(angle = 90)) +
+  labs(title = "Phylum abundance changes by depth and season") +
+  xlab("Depth and Season") + ylab("Phylum Abundance")
