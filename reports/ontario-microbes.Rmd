@@ -1,0 +1,83 @@
+---
+title: "A Report Lake Ontario's Microbes"
+author: "Hilal Samut"
+date: "2025-02-19"
+output:
+  html_document:
+    df_print: paged
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r packages}
+# Load libraries/packages
+library(tidyverse)
+```
+
+
+# Load in the Lake Ontario Data
+
+```{r load-data}
+# Load in lake ontario microbial community data
+sample_and_taxon <-
+  read_csv("data/sample_and_taxon.csv")
+
+# Inspect the data
+glimpse(sample_and_taxon)
+```
+
+
+# Microbial Abundance Versus Temperature
+
+```{r cells_vs_temp}
+# temp on the X
+# cell abundance on th Y
+# Colored by environmental Group
+# make it look nice e.g. labels, models etc
+ggplot(data = sample_and_taxon,
+       aes(x = temperature, y = cells_per_ml/10^6)) +
+  geom_point(aes(color = env_group)) + 
+  labs(x = "Temperature (C)", 
+       y = "Cell Abundance (cfu/ml)") +
+  scale_color_manual(values = c("cornflowerblue",
+                                "goldenrod1",
+                                "firebrick")) +
+  geom_smooth(method = "lm", color = "black") +
+  theme_classic() +
+  theme(legend.position = "bottom", 
+        legend.title = element_blank())
+``` 
+
+The above plot shows that:
+
+- There's a positive relationship between temperature and cell abundances.
+- For example, deep samples are the coldest and have the fewest cells. 
+
+```{r data-summary, include = FALSE}
+n_samples <-
+  sample_and_taxon %>%
+  #Only pick out sample id column
+  select(sample_id) %>%
+  # Number of distinct names in the column 
+  n_distinct()
+
+# Calculate the minimum and maximum temps
+# min
+minTemp <- 
+  sample_and_taxon %>% 
+  summarize(round(min(temperature), digits = 1)) %>%
+  pull()
+
+# max
+maxTemp <- 
+  sample_and_taxon %>% 
+  summarize(round(max(temperature), digits = 1)) %>%
+  pull()
+```
+
+The total number of samples is `r n_samples`. For this set of samples, temperature ranged from a minimum of `r minTemp` to a `r maxTemp` celcius. 
